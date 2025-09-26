@@ -1,41 +1,92 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
-const Register = () => {
+export default function Register() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
+    setLoading(true);
+
+    // Mock backend call, replace with real API logic later
+    setTimeout(() => {
+      // On successful registration:
+      localStorage.setItem("authToken", "mock-token-123");
+      setLoading(false);
+      navigate("/dashboard");
+    }, 700);
+  };
+
   return (
-    <motion.div
-      className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-green-400 via-blue-500 to-purple-600"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      <motion.div
-        className="bg-white backdrop-blur-md bg-opacity-20 rounded-3xl shadow-2xl p-12 w-96"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.6 }}
+<div className="flex items-center justify-center min-h-screen bg-white">
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-2xl shadow-2xl w-[96%] max-w-md"
       >
-        <h1 className="text-4xl font-bold text-white mb-8 text-center">Create Account</h1>
+        <h2 className="text-3xl font-extrabold mb-6 text-center text-gray-800">
+          Create Your Account
+        </h2>
+        {error && (
+          <div className="bg-red-100 text-red-700 rounded p-2 mb-4 text-center">
+            {error}
+          </div>
+        )}
+
         <input
-          type="text"
-          placeholder="Name"
-          className="w-full p-3 mb-4 rounded-xl border border-white bg-white/30 placeholder-white text-white focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-        />
-        <input
-          type="text"
+          type="email"
           placeholder="Email"
-          className="w-full p-3 mb-4 rounded-xl border border-white bg-white/30 placeholder-white text-white focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition"
         />
+
         <input
           type="password"
           placeholder="Password"
-          className="w-full p-3 mb-6 rounded-xl border border-white bg-white/30 placeholder-white text-white focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition"
         />
-        <button className="w-full py-3 bg-gradient-to-r from-green-400 to-blue-500 rounded-xl text-white font-semibold shadow-lg hover:scale-105 transition-transform duration-300">
-          Sign Up
-        </button>
-      </motion.div>
-    </motion.div>
-  );
-};
 
-export default Register;
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          className="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition"
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-white-600 transition mb-2 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? "Registering..." : "Register"}
+        </button>
+
+        <p className="text-center mt-2 text-gray-700">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-600 hover:underline font-medium">
+            Login
+          </Link>
+        </p>
+      </form>
+    </div>
+  );
+}

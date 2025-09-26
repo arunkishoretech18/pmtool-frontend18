@@ -1,35 +1,23 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-const Dashboard = () => {
+export default function Dashboard() {
+  const navigate = useNavigate();
+
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    window.location.href = '/login';
+    localStorage.removeItem("authToken");
+    navigate("/login");
   };
 
   return (
-    <motion.div
-      className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      <motion.div
-        className="bg-white backdrop-blur-md bg-opacity-20 rounded-3xl shadow-2xl p-12 w-96 text-center"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.6 }}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+      <h1 className="text-3xl font-bold mb-6">Welcome to Dashboard 🎉</h1>
+      <button
+        onClick={handleLogout}
+        className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600"
       >
-        <h1 className="text-4xl font-bold text-white mb-6">Dashboard</h1>
-        <p className="text-white mb-6">Welcome to PM TOOL</p>
-        <button
-          onClick={handleLogout}
-          className="w-full py-3 bg-gradient-to-r from-pink-500 to-red-500 rounded-xl text-white font-semibold shadow-lg hover:scale-105 transition-transform duration-300"
-        >
-          Logout
-        </button>
-      </motion.div>
-    </motion.div>
+        Logout
+      </button>
+    </div>
   );
-};
-
-export default Dashboard;
+}
