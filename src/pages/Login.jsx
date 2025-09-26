@@ -4,19 +4,28 @@ import { useNavigate, Link } from "react-router-dom";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Mock: always "login" successfully and save a fake token
-    localStorage.setItem("authToken", "mock-token-123");
-    navigate("/dashboard");
+    setLoading(true);
+
+    // Simulate login request
+    setTimeout(() => {
+      localStorage.setItem("authToken", "mock-token-123");
+      setLoading(false);
+      navigate("/dashboard");
+    }, 700);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center">PM TOOL</h2>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-2xl shadow-md max-w-md w-full"
+      >
+        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">PM TOOL</h2>
 
         <input
           type="email"
@@ -24,7 +33,8 @@ export default function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full p-2 mb-3 border rounded-lg"
+          disabled={loading}
+          className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         />
 
         <input
@@ -33,19 +43,21 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full p-2 mb-3 border rounded-lg"
+          disabled={loading}
+          className="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         />
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+          disabled={loading}
+          className="w-full bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
 
-        <p className="mt-3 text-center">
+        <p className="mt-4 text-center text-gray-700">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-blue-500 hover:underline">
+          <Link to="/register" className="text-blue-500 hover:underline font-medium">
             Register
           </Link>
         </p>
