@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
@@ -20,18 +21,33 @@ export default function Register() {
 
     setLoading(true);
 
-    // Mock backend call, replace with real API logic later
-    setTimeout(() => {
-      // On successful registration:
-      localStorage.setItem("authToken", "mock-token-123");
+    try {
+      const response = await axios.post("/api/auth/register", {
+        email,
+        password,
+      });
+
+      if (response.status === 201 || response.status === 200) {
+        // Registration success - redirect to login
+        setLoading(false);
+        navigate("/login");
+      } else {
+        setLoading(false);
+        setError("Registration failed. Please try again.");
+      }
+    } catch (err) {
       setLoading(false);
-      navigate("/dashboard");
-    }, 700);
+      // Provide error message from backend if available
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
+    }
   };
 
   return (
-<div className="flex items-center justify-center min-h-screen bg-white">
-
+    <div className="flex items-center justify-center min-h-screen bg-white">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-2xl w-[96%] max-w-md"
