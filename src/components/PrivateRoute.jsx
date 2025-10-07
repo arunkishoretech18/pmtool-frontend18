@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
-// Check for a mock authentication token
 export default function PrivateRoute({ children }) {
-  const token = localStorage.getItem("authToken"); // Placeholder token
-  return token ? children : <Navigate to="/login" />;
+  const { isAuthenticated } = useContext(AuthContext);
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Otherwise, render the protected component(s)
+  return children;
 }

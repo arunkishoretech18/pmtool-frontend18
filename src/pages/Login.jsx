@@ -1,22 +1,36 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
 
-    // Simulate login request
-    setTimeout(() => {
-      localStorage.setItem("authToken", "mock-token-123");
+    try {
+      const response = await axios.post("/api/auth/login", { email, password });
+      if (response.status === 200 && response.data.token) {
+        // Save JWT token to localStorage
+        localStorage.setItem("authToken", response.data.token);
+        setLoading(false);
+        navigate("/dashboard");
+      } else {
+        setError("Login failed. Please check credentials.");
+        setLoading(false);
+      }
+    } catch (err) {
       setLoading(false);
-      navigate("/dashboard");
-    }, 700);
+      setError(
+        err.response?.data?.message || "Login failed. Please try again."
+      );
+    }
   };
 
   return (
@@ -26,7 +40,9 @@ export default function Login() {
         className="bg-white p-8 rounded-2xl shadow-md max-w-md w-full"
       >
         <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">PM TOOL</h2>
-
+        {error && (
+          <div className="mb-4 text-red-600 text-center">{error}</div>
+        )}
         <input
           type="email"
           placeholder="Email"
