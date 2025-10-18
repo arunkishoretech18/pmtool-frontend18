@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -9,17 +10,19 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match!");
+      setError("Passwords do not match.");
+      setLoading(false);
       return;
     }
-
-    setLoading(true);
 
     try {
       const response = await axios.post("/api/auth/register", {
@@ -28,70 +31,91 @@ export default function Register() {
       });
 
       if (response.status === 201 || response.status === 200) {
-        // Registration success - redirect to login
-        setLoading(false);
-        navigate("/login");
+        if (response.data.token) {
+          login(response.data.token);
+          const from = location.state?.from?.pathname || "/dashboard";
+          navigate(from, { replace: true });
+        } else {
+          navigate("/login", { replace: true });
+        }
       } else {
-        setLoading(false);
         setError("Registration failed. Please try again.");
       }
     } catch (err) {
       setLoading(false);
-      // Provide error message from backend if available
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Registration failed. Please try again.");
-      }
+      const message = err.response?.data?.message || "Registration failed. Please check your input.";
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-2xl w-[96%] max-w-md"
+        aria-label="Registration form"
       >
         <h2 className="text-3xl font-extrabold mb-6 text-center text-gray-800">
-          Create Your Account
+          Register
         </h2>
         {error && (
-          <div className="bg-red-100 text-red-700 rounded p-2 mb-4 text-center">
+          <div
+            role="alert"
+            className="bg-red-100 text-red-700 rounded p-2 mb-4 text-center"
+            aria-live="assertive"
+          >
             {error}
           </div>
         )}
 
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+          Email
+        </label>
         <input
           type="email"
-          placeholder="Email"
+          id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
           className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition"
+          aria-required="true"
         />
 
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+          Password
+        </label>
         <input
           type="password"
-          placeholder="Password"
+          id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          minLength={8}
           className="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition"
+          aria-required="true"
         />
 
+        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+          Confirm Password
+        </label>
         <input
           type="password"
-          placeholder="Confirm Password"
+          id="confirmPassword"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
+          minLength={8}
           className="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-300 transition"
+          aria-required="true"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-white-600 transition mb-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-blue-600 transition mb-2 disabled:opacity-60 disabled:cursor-not-allowed"
+          aria-label="Register button"
         >
           {loading ? "Registering..." : "Register"}
         </button>

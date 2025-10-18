@@ -1,27 +1,44 @@
 import React from "react";
-import TaskCard from "./TaskCard";
 
-const mockTasks = [
-  { id: 1, title: "Design Homepage", description: "Create wireframes", status: "To Do" },
-  { id: 2, title: "Setup API", description: "Implement REST endpoints", status: "In Progress" },
-  { id: 3, title: "User Authentication", description: "Login & Registration", status: "Done" },
-];
+export default function TaskBoard({ tasks, projectId }) {
+  const statuses = ["To Do", "In Progress", "Done"];
 
-const columns = ["To Do", "In Progress", "Done"];
+  const getTasksByStatus = (status) => {
+    return tasks.filter((task) => task.status === status);
+  };
 
-export default function TaskBoard() {
   return (
-    <div className="flex gap-6 p-6 bg-gray-100 min-h-screen">
-      {columns.map((col) => (
-        <div key={col} className="flex-1 bg-gray-200 rounded-lg p-4">
-          <h2 className="text-xl font-bold mb-4">{col}</h2>
-          {mockTasks
-            .filter((task) => task.status === col)
-            .map((task) => (
-              <TaskCard key={task.id} title={task.title} description={task.description} />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+      {statuses.map((status) => (
+        <div key={status} className="bg-white p-4 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4" role="heading" aria-level="2">
+            {status} ({getTasksByStatus(status).length})
+          </h2>
+          <div className="space-y-4">
+            {getTasksByStatus(status).map((task) => (
+              <div
+                key={task._id}
+                className="p-3 bg-gray-50 rounded border border-gray-200"
+                role="region"
+                aria-label={`${task.title} task`}
+              >
+                <h3 className="font-medium">{task.title}</h3>
+                {task.description && <p className="text-sm text-gray-600">{task.description}</p>}
+                {task.dueDate && (
+                  <p className="text-xs text-gray-500">
+                    Due: {new Date(task.dueDate).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
             ))}
+          </div>
         </div>
       ))}
+      {!tasks.length && (
+        <div className="col-span-full text-center text-gray-500" role="alert">
+          No tasks available for project ID: {projectId}
+        </div>
+      )}
     </div>
   );
 }

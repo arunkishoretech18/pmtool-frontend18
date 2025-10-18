@@ -1,15 +1,14 @@
 import React, { useContext } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-export default function PrivateRoute({ children }) {
+export default function PrivateRoute() {
   const { isAuthenticated } = useContext(AuthContext);
+  const location = useLocation();
 
-  // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Otherwise, render the protected component(s)
-  return children;
+  return <Outlet />;
 }
